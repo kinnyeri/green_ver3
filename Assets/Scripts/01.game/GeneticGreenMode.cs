@@ -91,8 +91,8 @@ public class GeneticGreenMode : Progress
             Debug.Log("Start Examine : " + stoppedPos.x + ", " + stoppedPos.z);
 
             angle = Mathf.Atan((stoppedPos.z - startPos.transform.position.z) / (stoppedPos.x - startPos.transform.position.x))
-                - Mathf.Atan((hole.transform.position.z - startPos.transform.position.z) / (hole.transform.position.z - startPos.transform.position.z));
-            Debug.Log(angle);
+                - Mathf.Atan((hole.transform.position.z - startPos.transform.position.z) / (hole.transform.position.x - startPos.transform.position.x))*180/Mathf.PI;
+            Debug.Log("ANGLE " +angle); // 각도 계산이 잘 안됨
             //nextState();
         }
     }
