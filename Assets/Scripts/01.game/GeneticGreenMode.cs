@@ -33,7 +33,7 @@ public class GeneticGreenMode : Progress
         state = 0;
 
         hole.transform.position = new Vector3(random.Next(100, 200), 3.1f, random.Next(100, 200));
-        startPos.transform.position = new Vector3(random.Next(100, 200), 3.1f, random.Next(100, 200));
+        startPos.transform.position = new Vector3(random.Next(100, 200), 8f, random.Next(100, 200));
     }
 
     // Update is called once per frame
@@ -56,15 +56,27 @@ public class GeneticGreenMode : Progress
         Debug.Log("Next State : "+state);
     }
 
+    bool isNewStart = true;
+
     public override void startState()
     {
         Debug.Log("Start State");
         if (!abm.finish)
         {
-            ball.transform.position = startPos.transform.position;
+            if (isNewStart)
+            {
+                ball.transform.position = startPos.transform.position;
+                isNewStart = false;
+            }
+            cameraPos.transform.position = startCameraPos.transform.position;
             Debug.Log("Chaged Pos : " + ball.transform.position.x + ", " + ball.transform.position.z);
+            if (abm.isColliedGGreen)
+            {
+                isNewStart = true;
+                nextState();
+            }
             //cameraPos.transform.position = startCameraPos.transform.position;
-            nextState();
+
         }
     }
     public override void readyState() {

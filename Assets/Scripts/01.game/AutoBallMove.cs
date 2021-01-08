@@ -28,6 +28,8 @@ public class AutoBallMove : MonoBehaviour
     Vector3 side1, side2, perp;
     int count = 0;
 
+    public bool isColliedGGreen = false;
+
 
     public bool finish = false;
 
@@ -90,6 +92,15 @@ public class AutoBallMove : MonoBehaviour
             transform.Translate(velocity * Time.deltaTime); // local 좌표로 이동
             //gp.power = (Mathf.Round(velocity.z * 1000) * 0.001f);
             Debug.Log("Move " + cnt);
+        }
+    }
+    void OnCollisionEnter(Collision collision)
+    {
+        if(collision.gameObject.name== "GeneratedGreen")
+        {
+            Debug.Log("Green collied with a ball");
+            GetComponent<Rigidbody>().isKinematic = true;
+            isColliedGGreen = true;
         }
     }
 }

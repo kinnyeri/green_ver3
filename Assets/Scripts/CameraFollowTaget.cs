@@ -6,9 +6,11 @@ public class CameraFollowTaget : MonoBehaviour
 {
     public Transform target;
     public PracticeMode pm;
-    public GetPower gp;
-    float offsetX = 0f, offsetY = 2.75f, offsetZ = -10;
+    public GeneticGreenMode ggm;
 
+    public GetPower gp;
+    float offsetX = 0f, offsetY = 6.5f, offsetZ = -20f;
+    public Transform followingPos;
     public Transform defaultPos;
 
     Vector3 cameraPos;
@@ -22,15 +24,16 @@ public class CameraFollowTaget : MonoBehaviour
     // Update is called once per frame
     void LateUpdate()
     {
-        //if (pm.state == Progress.StateLevel.Roll)
-        //{
-        //    cameraPos.x = target.position.x + offsetX;
-        //    cameraPos.y = target.position.y + offsetY;
-        //    cameraPos.z = target.position.z + offsetZ;
-        //    transform.position = cameraPos;
-        //}
-        if(pm.state == Progress.StateLevel.Ready)
+        if (ggm.state == Progress.StateLevel.Roll)
         {
+            cameraPos.x = target.position.x + offsetX;
+            cameraPos.y = target.position.y + offsetY;
+            cameraPos.z = target.position.z + offsetZ;
+            transform.position = cameraPos;
+        }
+        if (pm.state == Progress.StateLevel.Ready)   //|| ggm.state == Progress.StateLevel.Ready
+        {
+            Debug.Log("Camera Pos Changed");
             transform.position = defaultPos.position;
             transform.rotation = defaultPos.rotation;
         }
