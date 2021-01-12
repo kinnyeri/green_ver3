@@ -75,8 +75,6 @@ public class GeneticGreenMode : Progress
                 isNewStart = true;
                 nextState();
             }
-            //cameraPos.transform.position = startCameraPos.transform.position;
-
         }
     }
     public override void readyState() {

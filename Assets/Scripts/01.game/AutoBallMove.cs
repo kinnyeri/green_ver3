@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class AutoBallMove : MonoBehaviour
 {
+    Terrain terrain;
+    public TerrainData td;
     Rigidbody rb;
     public Vector3 target; //= new Vector3(-0.615f, 2.705f, 29.275f);
 
@@ -19,7 +21,7 @@ public class AutoBallMove : MonoBehaviour
     int cnt = 0;
     float friction = 0.3f;
 
-    public GameObject[] normVecs;
+    Vector3[] normVecs;
 
     Vector3 gravity = new Vector3(0, 9.8f, 0);
     float greenFriction = 0f;
@@ -30,9 +32,10 @@ public class AutoBallMove : MonoBehaviour
 
     public bool isColliedGGreen = false;
 
+    public Camera rayCamera;
 
     public bool finish = false;
-
+    public GameObject temp;
     public void setVelocity(Vector3 v)
     {
         velocity = v;
@@ -43,6 +46,7 @@ public class AutoBallMove : MonoBehaviour
     void Start()
     {
         rb = transform.gameObject.GetComponent<Rigidbody>();
+        //td = terrain.terrainData;
     }
 
     void FixedUpdate()
@@ -50,13 +54,31 @@ public class AutoBallMove : MonoBehaviour
         count++;
         if (ggm.state == Progress.StateLevel.Start)
         {
+            //norm
             tarPos = targetPlace.transform.position;
             tan = (tarPos.y - transform.position.y) / (tarPos.z - transform.position.z);
+            Debug.Log(td.GetHeight((int)transform.position.x, (int)transform.position.z));
 
-            side1 = normVecs[1].transform.position - normVecs[0].transform.position;
-            side2 = normVecs[2].transform.position - normVecs[0].transform.position;
+            normVecs[0] = new Vector3(transform.position.x, td.GetHeight((int)transform.position.x, (int)transform.position.z), transform.position.z);
+            normVecs[1] = new Vector3(transform.position.x+1, td.GetHeight((int)transform.position.x+1, (int)transform.position.z), transform.position.z);
+            normVecs[1] = new Vector3(transform.position.x, td.GetHeight((int)transform.position.x, (int)transform.position.z+1), transform.position.z+1);
+
+            side1 = normVecs[1] - normVecs[0];
+            side2 = normVecs[2] - normVecs[0];
             perp = Vector3.Cross(side1, side2);
             perp = perp.normalized;
+
+            //hit
+            //RaycastHit hit;
+            //Ray ray = Camera.main.ScreenPointToRay(transform.position);
+
+            //if (Physics.Raycast(ray, out hit))
+            //{
+            //    Debug.Log("Ray cast hit " + hit.normal.x + ", " + hit.normal.y + ", " + hit.normal.z);
+
+            //}
+            //perp = hit.normal;
+
             Debug.Log("Start Pos: " + transform.position.x+", "+transform.position.z);
             Debug.Log("Tar Pos: " + tarPos.x+", "+ tarPos.z);
         }
@@ -80,6 +102,21 @@ public class AutoBallMove : MonoBehaviour
             }
             cnt++;
 
+
+            //norm
+            tarPos = targetPlace.transform.position;
+            tan = (tarPos.y - transform.position.y) / (tarPos.z - transform.position.z);
+            Debug.Log(td.GetHeight((int)transform.position.x, (int)transform.position.z));
+            normVecs[0] = new Vector3(transform.position.x, td.GetHeight((int)transform.position.x, (int)transform.position.z), transform.position.z);
+            normVecs[1] = new Vector3(transform.position.x + 1, td.GetHeight((int)transform.position.x + 1, (int)transform.position.z), transform.position.z);
+            normVecs[1] = new Vector3(transform.position.x, td.GetHeight((int)transform.position.x, (int)transform.position.z + 1), transform.position.z + 1);
+
+            side1 = normVecs[1] - normVecs[0];
+            side2 = normVecs[2] - normVecs[0];
+            perp = Vector3.Cross(side1, side2);
+            perp = perp.normalized;
+
+
             // 중력
             Vector3 gravityA = new Vector3(gravity.y * perp.x, gravity.y * (perp.y - 1), gravity.y * perp.z);
 
@@ -92,6 +129,17 @@ public class AutoBallMove : MonoBehaviour
             transform.Translate(velocity * Time.deltaTime); // local 좌표로 이동
             //gp.power = (Mathf.Round(velocity.z * 1000) * 0.001f);
             Debug.Log("Move " + cnt);
+            //Ray
+            //RaycastHit hit;
+            //Ray ray = Camera.main.ScreenPointToRay(temp.transform.position);
+
+            //if (Physics.Raycast(ray, out hit))
+            //{
+            //    Debug.Log("Ray cast hit " + hit.normal.x + ", " + hit.normal.y + ", " + hit.normal.z);
+
+            //}
+            //perp = hit.normal;
+            Debug.Log("Ray cast hit " + perp.x + ", " + perp.y + ", " + perp.z);
         }
     }
     void OnCollisionEnter(Collision collision)
