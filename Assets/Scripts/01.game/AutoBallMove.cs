@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class AutoBallMove : MonoBehaviour
 {
-    Terrain terrain;
-    public TerrainData td;
+    public Terrain terrain;
+    TerrainData td;
     Rigidbody rb;
     public Vector3 target; //= new Vector3(-0.615f, 2.705f, 29.275f);
 
@@ -32,10 +32,10 @@ public class AutoBallMove : MonoBehaviour
 
     public bool isColliedGGreen = false;
 
-    public Camera rayCamera;
+    //public Camera rayCamera;
 
     public bool finish = false;
-    public GameObject temp;
+    //public GameObject temp;
     public void setVelocity(Vector3 v)
     {
         velocity = v;
@@ -46,7 +46,8 @@ public class AutoBallMove : MonoBehaviour
     void Start()
     {
         rb = transform.gameObject.GetComponent<Rigidbody>();
-        //td = terrain.terrainData;
+        td = terrain.terrainData;
+        normVecs = new Vector3[3];
     }
 
     void FixedUpdate()
@@ -57,27 +58,17 @@ public class AutoBallMove : MonoBehaviour
             //norm
             tarPos = targetPlace.transform.position;
             tan = (tarPos.y - transform.position.y) / (tarPos.z - transform.position.z);
-            Debug.Log(td.GetHeight((int)transform.position.x, (int)transform.position.z));
-
+            Debug.Log("td " + td.GetHeight((int)transform.position.x, (int)transform.position.z));
+            Debug.Log("t " + transform.position.x);
             normVecs[0] = new Vector3(transform.position.x, td.GetHeight((int)transform.position.x, (int)transform.position.z), transform.position.z);
             normVecs[1] = new Vector3(transform.position.x+1, td.GetHeight((int)transform.position.x+1, (int)transform.position.z), transform.position.z);
-            normVecs[1] = new Vector3(transform.position.x, td.GetHeight((int)transform.position.x, (int)transform.position.z+1), transform.position.z+1);
+            normVecs[2] = new Vector3(transform.position.x, td.GetHeight((int)transform.position.x, (int)transform.position.z+1), transform.position.z+1);
 
             side1 = normVecs[1] - normVecs[0];
             side2 = normVecs[2] - normVecs[0];
             perp = Vector3.Cross(side1, side2);
+            Debug.Log("노말 전 " + perp);
             perp = perp.normalized;
-
-            //hit
-            //RaycastHit hit;
-            //Ray ray = Camera.main.ScreenPointToRay(transform.position);
-
-            //if (Physics.Raycast(ray, out hit))
-            //{
-            //    Debug.Log("Ray cast hit " + hit.normal.x + ", " + hit.normal.y + ", " + hit.normal.z);
-
-            //}
-            //perp = hit.normal;
 
             Debug.Log("Start Pos: " + transform.position.x+", "+transform.position.z);
             Debug.Log("Tar Pos: " + tarPos.x+", "+ tarPos.z);
@@ -86,6 +77,7 @@ public class AutoBallMove : MonoBehaviour
         {
             if (Mathf.Abs(tarPos.x - transform.position.x) < 1.3f && Mathf.Abs(tarPos.z - transform.position.z) < 1.3f)
             {
+                Debug.Log("Finish Line");
                 succeed = true;
                 velocity = new Vector3(0f, 0f, 0f);
                 finish = true;//들어갔다
@@ -106,14 +98,22 @@ public class AutoBallMove : MonoBehaviour
             //norm
             tarPos = targetPlace.transform.position;
             tan = (tarPos.y - transform.position.y) / (tarPos.z - transform.position.z);
-            Debug.Log(td.GetHeight((int)transform.position.x, (int)transform.position.z));
+            Debug.Log("td "+td.GetHeight((int)transform.position.x, (int)transform.position.z));
             normVecs[0] = new Vector3(transform.position.x, td.GetHeight((int)transform.position.x, (int)transform.position.z), transform.position.z);
             normVecs[1] = new Vector3(transform.position.x + 1, td.GetHeight((int)transform.position.x + 1, (int)transform.position.z), transform.position.z);
-            normVecs[1] = new Vector3(transform.position.x, td.GetHeight((int)transform.position.x, (int)transform.position.z + 1), transform.position.z + 1);
+            normVecs[2] = new Vector3(transform.position.x, td.GetHeight((int)transform.position.x, (int)transform.position.z + 1), transform.position.z + 1);
+
+            Debug.Log("NORM 0 " + normVecs[0]);
+            Debug.Log("NORM 1 " + normVecs[1]);
+            Debug.Log("NORM 2 " + normVecs[2]);
+
 
             side1 = normVecs[1] - normVecs[0];
             side2 = normVecs[2] - normVecs[0];
+            Debug.Log("PERP " + perp);
             perp = Vector3.Cross(side1, side2);
+            Debug.Log("노말 전 " + perp);
+
             perp = perp.normalized;
 
 
@@ -129,17 +129,7 @@ public class AutoBallMove : MonoBehaviour
             transform.Translate(velocity * Time.deltaTime); // local 좌표로 이동
             //gp.power = (Mathf.Round(velocity.z * 1000) * 0.001f);
             Debug.Log("Move " + cnt);
-            //Ray
-            //RaycastHit hit;
-            //Ray ray = Camera.main.ScreenPointToRay(temp.transform.position);
-
-            //if (Physics.Raycast(ray, out hit))
-            //{
-            //    Debug.Log("Ray cast hit " + hit.normal.x + ", " + hit.normal.y + ", " + hit.normal.z);
-
-            //}
-            //perp = hit.normal;
-            Debug.Log("Ray cast hit " + perp.x + ", " + perp.y + ", " + perp.z);
+            Debug.Log("Velocity " + velocity);
         }
     }
     void OnCollisionEnter(Collision collision)
