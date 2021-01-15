@@ -747,17 +747,17 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: 36411da1d2c107149b1346d270bef4d4,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 36411da1d2c107149b1346d270bef4d4,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 36411da1d2c107149b1346d270bef4d4,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -927199367670048503, guid: 36411da1d2c107149b1346d270bef4d4,
         type: 3}
@@ -768,6 +768,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalPosition.y
       value: -1.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 7046658135340644966, guid: 36411da1d2c107149b1346d270bef4d4,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7046658135340644966, guid: 36411da1d2c107149b1346d270bef4d4,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7046658135340644966, guid: 36411da1d2c107149b1346d270bef4d4,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 36411da1d2c107149b1346d270bef4d4, type: 3}
@@ -1022,7 +1037,7 @@ MonoBehaviour:
   startCameraPos: {fileID: 504243747}
   hole: {fileID: 1142541111}
   tt: {fileID: 888376642}
-  userVeloc: {x: 0, y: 0, z: 500}
+  userVeloc: {x: 0, y: 0, z: 30}
   stoppedPos: {x: 0, y: 0, z: 0}
 --- !u!4 &630337513
 Transform:
@@ -2408,14 +2423,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2dc120fb44fe86047abe888daa45e6c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  terrain: {fileID: 888376644}
   target: {x: 0, y: 0, z: 0}
   targetPlace: {fileID: 1142541111}
   ggm: {fileID: 630337512}
   succeed: 0
-  normVecs:
-  - {fileID: 1071732681}
-  - {fileID: 1339142314}
-  - {fileID: 122800459}
   T: 0.25
   isColliedGGreen: 0
   finish: 0

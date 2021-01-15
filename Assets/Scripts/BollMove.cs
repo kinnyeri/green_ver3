@@ -58,7 +58,9 @@ public class BollMove : MonoBehaviour
             side1 = normVecs[1].transform.position - normVecs[0].transform.position;
             side2 = normVecs[2].transform.position - normVecs[0].transform.position;
             perp = Vector3.Cross(side1, side2);
+            Debug.Log("perp : " + perp);
             perp = perp.normalized;
+            
         }
         if (pm.state == Progress.StateLevel.Roll)
         {
@@ -87,6 +89,7 @@ public class BollMove : MonoBehaviour
             FrictionA = perp.y * gravity.y* (velocity / Vector3.Magnitude(velocity))*greenFriction;
 
             velocity += (gravityA+FrictionA) * Time.deltaTime;
+            Debug.Log("v" + velocity);
             //transform.position += velocity * Time.deltaTime;
             transform.Translate(velocity * Time.deltaTime); // local 좌표로 이동
             gp.power = (Mathf.Round(velocity.z * 1000) * 0.001f);

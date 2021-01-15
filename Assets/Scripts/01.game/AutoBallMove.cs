@@ -57,16 +57,18 @@ public class AutoBallMove : MonoBehaviour
         {
             //norm
             tarPos = targetPlace.transform.position;
-            tan = (tarPos.y - transform.position.y) / (tarPos.z - transform.position.z);
-            Debug.Log("td " + td.GetHeight((int)transform.position.x, (int)transform.position.z));
+            Debug.Log("td " + getHeight(transform.position.x, transform.position.z));
             Debug.Log("t " + transform.position.x);
-            normVecs[0] = new Vector3(transform.position.x, td.GetHeight((int)transform.position.x, (int)transform.position.z), transform.position.z);
-            normVecs[1] = new Vector3(transform.position.x+1, td.GetHeight((int)transform.position.x+1, (int)transform.position.z), transform.position.z);
-            normVecs[2] = new Vector3(transform.position.x, td.GetHeight((int)transform.position.x, (int)transform.position.z+1), transform.position.z+1);
+            
+            normVecs[0] = new Vector3(transform.position.x, getHeight(transform.position.x, transform.position.z), transform.position.z);
+            normVecs[1] = new Vector3(transform.position.x+ 1, getHeight(transform.position.x+ 1, transform.position.z), transform.position.z);
+            normVecs[2] = new Vector3(transform.position.x, getHeight(transform.position.x, transform.position.z+ 1), transform.position.z+ 1);
 
             side1 = normVecs[1] - normVecs[0];
             side2 = normVecs[2] - normVecs[0];
-            perp = Vector3.Cross(side1, side2);
+            Debug.Log("side1 " + side1);
+            Debug.Log("side2 " + side2);
+            perp = Vector3.Cross(side2, side1);
             Debug.Log("노말 전 " + perp);
             perp = perp.normalized;
 
@@ -97,11 +99,11 @@ public class AutoBallMove : MonoBehaviour
 
             //norm
             tarPos = targetPlace.transform.position;
-            tan = (tarPos.y - transform.position.y) / (tarPos.z - transform.position.z);
-            Debug.Log("td "+td.GetHeight((int)transform.position.x, (int)transform.position.z));
-            normVecs[0] = new Vector3(transform.position.x, td.GetHeight((int)transform.position.x, (int)transform.position.z), transform.position.z);
-            normVecs[1] = new Vector3(transform.position.x + 1, td.GetHeight((int)transform.position.x + 1, (int)transform.position.z), transform.position.z);
-            normVecs[2] = new Vector3(transform.position.x, td.GetHeight((int)transform.position.x, (int)transform.position.z + 1), transform.position.z + 1);
+            Debug.Log("td "+getHeight(transform.position.x, transform.position.z));
+            Debug.Log("td + 20 " + getHeight(transform.position.x+10, transform.position.z));
+            normVecs[0] = new Vector3(transform.position.x, getHeight(transform.position.x, transform.position.z), transform.position.z);
+            normVecs[1] = new Vector3(transform.position.x + 1, getHeight(transform.position.x + 1, transform.position.z), transform.position.z);
+            normVecs[2] = new Vector3(transform.position.x, getHeight(transform.position.x, transform.position.z + 1), transform.position.z + 1);
 
             Debug.Log("NORM 0 " + normVecs[0]);
             Debug.Log("NORM 1 " + normVecs[1]);
@@ -110,27 +112,56 @@ public class AutoBallMove : MonoBehaviour
 
             side1 = normVecs[1] - normVecs[0];
             side2 = normVecs[2] - normVecs[0];
-            Debug.Log("PERP " + perp);
-            perp = Vector3.Cross(side1, side2);
+            //Debug.Log("PERP " + perp);
+
+            perp = Vector3.Cross(side2, side1);
+            //Debug.Log("perp x " + perp.x.ToString("N3"));
+            //Debug.Log("perp y " + perp.y.ToString("N3"));
             Debug.Log("노말 전 " + perp);
 
             perp = perp.normalized;
-
-
+            Debug.Log("PERP " + perp);
             // 중력
-            Vector3 gravityA = new Vector3(gravity.y * perp.x, gravity.y * (perp.y - 1), gravity.y * perp.z);
+            float height = getHeight(transform.position.x, transform.position.z);
+            Vector3 gravityA;
+            if (transform.position.y <=  height + 0.5f )
+            {
+                gravityA = new Vector3(gravity.y * perp.x, gravity.y * (perp.y - 1), gravity.y * perp.z);
+            }
+            else
+            {
+                gravityA = new Vector3(0, -gravity.y , 0);
+            }
 
             //마찰력
-            greenFriction = 0.3f * (Vector3.Magnitude(velocity) / T) + 0.4f * ((T - Vector3.Magnitude(velocity) / T));
-            FrictionA = perp.y * gravity.y * (velocity / Vector3.Magnitude(velocity)) * greenFriction;
+
+            greenFriction = Mathf.Lerp(0.8f, 0.3f, velocity.magnitude / T);//  0.3f * (Vector3.Magnitude(velocity) / T) + 0.4f * ((T - Vector3.Magnitude(velocity) / T));
+            FrictionA = -perp.y * gravity.y * velocity.normalized * greenFriction;
 
             velocity += (gravityA + FrictionA) * Time.deltaTime;
             //transform.position += velocity * Time.deltaTime;
             transform.Translate(velocity * Time.deltaTime); // local 좌표로 이동
+            height = getHeight(transform.position.x, transform.position.z);
+            if(height + 0.5f > transform.position.y)
+                transform.Translate(0, height +0.5f-transform.position.y, 0);
+
             //gp.power = (Mathf.Round(velocity.z * 1000) * 0.001f);
             Debug.Log("Move " + cnt);
             Debug.Log("Velocity " + velocity);
         }
+    }
+
+    float getHeight(float x, float z)
+    {
+        float ld, rd, lu, ru;
+        ld = td.GetHeight(Mathf.FloorToInt(x), Mathf.FloorToInt(z));
+        rd = td.GetHeight(Mathf.CeilToInt(x), Mathf.FloorToInt(z));
+        lu = td.GetHeight(Mathf.FloorToInt(x), Mathf.CeilToInt(z));
+        ru = td.GetHeight(Mathf.CeilToInt(x), Mathf.CeilToInt(z));
+        float l, r;
+        l = Mathf.Lerp(ld, lu, z - Mathf.Floor(z));
+        r = Mathf.Lerp(rd, ru, z - Mathf.Floor(z));
+        return Mathf.Lerp(l, r, x - Mathf.Floor(x));
     }
     void OnCollisionEnter(Collision collision)
     {
