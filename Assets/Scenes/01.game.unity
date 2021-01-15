@@ -2428,7 +2428,7 @@ MonoBehaviour:
   targetPlace: {fileID: 1142541111}
   ggm: {fileID: 630337512}
   succeed: 0
-  T: 0.25
+  T: 1
   isColliedGGreen: 0
   finish: 0
 --- !u!135 &1027093597

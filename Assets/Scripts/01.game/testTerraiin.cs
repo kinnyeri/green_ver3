@@ -85,6 +85,8 @@ public class testTerraiin : MonoBehaviour
                     newHeight = center_difference *Mathf.Clamp01( 1 - Mathf.Sqrt(Mathf.Pow((x - tmpX) / rangeX * 2, 2) + Mathf.Pow((y - tmpY) / rangeY * 2, 2)));
 
                     Genes[tmpX, tmpY] += ((float)newHeight);
+                    //Genes[tmpX, tmpY] = 0;
+
                 }
             }
 

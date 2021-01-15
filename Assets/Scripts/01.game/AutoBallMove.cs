@@ -25,7 +25,7 @@ public class AutoBallMove : MonoBehaviour
 
     Vector3 gravity = new Vector3(0, 9.8f, 0);
     float greenFriction = 0f;
-    public float T = 0.25f;
+    public float T = 0.5f; //0.25f;
     Vector3 FrictionA = new Vector3(0, 0, 0);
     Vector3 side1, side2, perp;
     int count = 0;
@@ -60,20 +60,20 @@ public class AutoBallMove : MonoBehaviour
             Debug.Log("td " + getHeight(transform.position.x, transform.position.z));
             Debug.Log("t " + transform.position.x);
             
-            normVecs[0] = new Vector3(transform.position.x, getHeight(transform.position.x, transform.position.z), transform.position.z);
-            normVecs[1] = new Vector3(transform.position.x+ 1, getHeight(transform.position.x+ 1, transform.position.z), transform.position.z);
-            normVecs[2] = new Vector3(transform.position.x, getHeight(transform.position.x, transform.position.z+ 1), transform.position.z+ 1);
+            //normVecs[0] = new Vector3(transform.position.x, getHeight(transform.position.x, transform.position.z), transform.position.z);
+            //normVecs[1] = new Vector3(transform.position.x+ 1, getHeight(transform.position.x+ 1, transform.position.z), transform.position.z);
+            //normVecs[2] = new Vector3(transform.position.x, getHeight(transform.position.x, transform.position.z+ 1), transform.position.z+ 1);
 
-            side1 = normVecs[1] - normVecs[0];
-            side2 = normVecs[2] - normVecs[0];
-            Debug.Log("side1 " + side1);
-            Debug.Log("side2 " + side2);
-            perp = Vector3.Cross(side2, side1);
-            Debug.Log("노말 전 " + perp);
-            perp = perp.normalized;
+            //side1 = normVecs[1] - normVecs[0];
+            //side2 = normVecs[2] - normVecs[0];
+            //Debug.Log("side1 " + side1);
+            //Debug.Log("side2 " + side2);
+            //perp = Vector3.Cross(side2, side1);
+            //Debug.Log("노말 전 " + perp);
+            //perp = perp.normalized;
 
-            Debug.Log("Start Pos: " + transform.position.x+", "+transform.position.z);
-            Debug.Log("Tar Pos: " + tarPos.x+", "+ tarPos.z);
+            //Debug.Log("Start Pos: " + transform.position.x+", "+transform.position.z);
+            //Debug.Log("Tar Pos: " + tarPos.x+", "+ tarPos.z);
         }
         if (ggm.state == Progress.StateLevel.Roll)
         {
@@ -96,11 +96,10 @@ public class AutoBallMove : MonoBehaviour
             }
             cnt++;
 
-
             //norm
             tarPos = targetPlace.transform.position;
             Debug.Log("td "+getHeight(transform.position.x, transform.position.z));
-            Debug.Log("td + 20 " + getHeight(transform.position.x+10, transform.position.z));
+            Debug.Log("td + 20 " + getHeight(transform.position.x+1, transform.position.z));
             normVecs[0] = new Vector3(transform.position.x, getHeight(transform.position.x, transform.position.z), transform.position.z);
             normVecs[1] = new Vector3(transform.position.x + 1, getHeight(transform.position.x + 1, transform.position.z), transform.position.z);
             normVecs[2] = new Vector3(transform.position.x, getHeight(transform.position.x, transform.position.z + 1), transform.position.z + 1);
@@ -109,22 +108,19 @@ public class AutoBallMove : MonoBehaviour
             Debug.Log("NORM 1 " + normVecs[1]);
             Debug.Log("NORM 2 " + normVecs[2]);
 
-
             side1 = normVecs[1] - normVecs[0];
             side2 = normVecs[2] - normVecs[0];
-            //Debug.Log("PERP " + perp);
 
             perp = Vector3.Cross(side2, side1);
-            //Debug.Log("perp x " + perp.x.ToString("N3"));
             //Debug.Log("perp y " + perp.y.ToString("N3"));
             Debug.Log("노말 전 " + perp);
-
             perp = perp.normalized;
             Debug.Log("PERP " + perp);
+
             // 중력
             float height = getHeight(transform.position.x, transform.position.z);
             Vector3 gravityA;
-            if (transform.position.y <=  height + 0.5f )
+            if (transform.position.y <=  height + 1f )
             {
                 gravityA = new Vector3(gravity.y * perp.x, gravity.y * (perp.y - 1), gravity.y * perp.z);
             }
@@ -134,16 +130,15 @@ public class AutoBallMove : MonoBehaviour
             }
 
             //마찰력
-
-            greenFriction = Mathf.Lerp(0.8f, 0.3f, velocity.magnitude / T);//  0.3f * (Vector3.Magnitude(velocity) / T) + 0.4f * ((T - Vector3.Magnitude(velocity) / T));
+            greenFriction = Mathf.Lerp(0.8f, 0.3f, velocity.magnitude / T); // 운동, 정지 마찰력 //  0.3f * (Vector3.Magnitude(velocity) / T) + 0.4f * ((T - Vector3.Magnitude(velocity) / T));
             FrictionA = -perp.y * gravity.y * velocity.normalized * greenFriction;
 
             velocity += (gravityA + FrictionA) * Time.deltaTime;
             //transform.position += velocity * Time.deltaTime;
             transform.Translate(velocity * Time.deltaTime); // local 좌표로 이동
             height = getHeight(transform.position.x, transform.position.z);
-            if(height + 0.5f > transform.position.y)
-                transform.Translate(0, height +0.5f-transform.position.y, 0);
+            if(height + 1f > transform.position.y)
+                transform.Translate(0, height +1f-transform.position.y, 0);
 
             //gp.power = (Mathf.Round(velocity.z * 1000) * 0.001f);
             Debug.Log("Move " + cnt);
