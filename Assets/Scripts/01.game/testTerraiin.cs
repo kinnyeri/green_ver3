@@ -33,6 +33,7 @@ public class testTerraiin : MonoBehaviour
 
         Terrain terrain = GetComponent<Terrain>();
         terrain.terrainData = GenerateTerrain(terrain.terrainData);
+        Debug.Log("200,200 ::: "+terrain.terrainData.GetHeight(150,150));
         if (finish == false) finish = true;
     }
 

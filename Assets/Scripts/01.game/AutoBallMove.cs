@@ -59,7 +59,9 @@ public class AutoBallMove : MonoBehaviour
             tarPos = targetPlace.transform.position;
             Debug.Log("td " + getHeight(transform.position.x, transform.position.z));
             Debug.Log("t " + transform.position.x);
-            
+
+            Debug.Log("KK 200,200 ::: "+td.GetHeight(150,150));
+
             //normVecs[0] = new Vector3(transform.position.x, getHeight(transform.position.x, transform.position.z), transform.position.z);
             //normVecs[1] = new Vector3(transform.position.x+ 1, getHeight(transform.position.x+ 1, transform.position.z), transform.position.z);
             //normVecs[2] = new Vector3(transform.position.x, getHeight(transform.position.x, transform.position.z+ 1), transform.position.z+ 1);
@@ -122,7 +124,7 @@ public class AutoBallMove : MonoBehaviour
             Vector3 gravityA;
             if (transform.position.y <=  height + 1f )
             {
-                gravityA = new Vector3(gravity.y * perp.x, gravity.y * (perp.y - 1), gravity.y * perp.z);
+                gravityA = new Vector3(gravity.y * perp.x, gravity.y * (perp.y - 1.5f), gravity.y * perp.z);
             }
             else
             {
@@ -130,10 +132,10 @@ public class AutoBallMove : MonoBehaviour
             }
 
             //마찰력
-            greenFriction = Mathf.Lerp(0.8f, 0.3f, velocity.magnitude / T); // 운동, 정지 마찰력 //  0.3f * (Vector3.Magnitude(velocity) / T) + 0.4f * ((T - Vector3.Magnitude(velocity) / T));
+            greenFriction = Mathf.Lerp(0.5f, 0.3f, velocity.magnitude / T); // 운동, 정지 마찰력 //  0.3f * (Vector3.Magnitude(velocity) / T) + 0.4f * ((T - Vector3.Magnitude(velocity) / T));
             FrictionA = -perp.y * gravity.y * velocity.normalized * greenFriction;
 
-            velocity += (gravityA + FrictionA) * Time.deltaTime;
+            velocity += (gravityA + FrictionA) * Time.deltaTime*5f;
             //transform.position += velocity * Time.deltaTime;
             transform.Translate(velocity * Time.deltaTime); // local 좌표로 이동
             height = getHeight(transform.position.x, transform.position.z);
@@ -163,7 +165,7 @@ public class AutoBallMove : MonoBehaviour
         if(collision.gameObject.name== "GeneratedGreen")
         {
             Debug.Log("Green collied with a ball");
-            GetComponent<Rigidbody>().isKinematic = true;
+            //GetComponent<Rigidbody>().isKinematic = true;
             isColliedGGreen = true;
         }
     }
