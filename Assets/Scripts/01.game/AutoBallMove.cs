@@ -33,9 +33,11 @@ public class AutoBallMove : MonoBehaviour
     public bool isColliedGGreen = false;
 
     //public Camera rayCamera;
-
+    public GameObject obj;
     public bool finish = false;
     //public GameObject temp;
+
+    Vector3 newAngle = new Vector3(0, 0, 0);
     public void setVelocity(Vector3 v)
     {
         velocity = v;
@@ -48,6 +50,7 @@ public class AutoBallMove : MonoBehaviour
         rb = transform.gameObject.GetComponent<Rigidbody>();
         td = terrain.terrainData;
         normVecs = new Vector3[3];
+        //CreateObjs();
     }
 
     void FixedUpdate()
@@ -59,23 +62,7 @@ public class AutoBallMove : MonoBehaviour
             tarPos = targetPlace.transform.position;
             Debug.Log("td " + getHeight(transform.position.x, transform.position.z));
             Debug.Log("t " + transform.position.x);
-
-            Debug.Log("KK 200,200 ::: "+td.GetHeight(150,150));
-
-            //normVecs[0] = new Vector3(transform.position.x, getHeight(transform.position.x, transform.position.z), transform.position.z);
-            //normVecs[1] = new Vector3(transform.position.x+ 1, getHeight(transform.position.x+ 1, transform.position.z), transform.position.z);
-            //normVecs[2] = new Vector3(transform.position.x, getHeight(transform.position.x, transform.position.z+ 1), transform.position.z+ 1);
-
-            //side1 = normVecs[1] - normVecs[0];
-            //side2 = normVecs[2] - normVecs[0];
-            //Debug.Log("side1 " + side1);
-            //Debug.Log("side2 " + side2);
-            //perp = Vector3.Cross(side2, side1);
-            //Debug.Log("노말 전 " + perp);
-            //perp = perp.normalized;
-
-            //Debug.Log("Start Pos: " + transform.position.x+", "+transform.position.z);
-            //Debug.Log("Tar Pos: " + tarPos.x+", "+ tarPos.z);
+            
         }
         if (ggm.state == Progress.StateLevel.Roll)
         {
@@ -96,12 +83,17 @@ public class AutoBallMove : MonoBehaviour
                 Debug.Log("Veloc : " + velocity.z);
                 return;
             }
+            if(transform.position.x<75||transform.position.x>375|| transform.position.z < 75 || transform.position.z > 375)
+            {
+                finish = true;
+                Debug.Log("경계 넘어감");
+                return;
+            }
             cnt++;
 
             //norm
             tarPos = targetPlace.transform.position;
-            Debug.Log("td "+getHeight(transform.position.x, transform.position.z));
-            Debug.Log("td + 20 " + getHeight(transform.position.x+1, transform.position.z));
+
             normVecs[0] = new Vector3(transform.position.x, getHeight(transform.position.x, transform.position.z), transform.position.z);
             normVecs[1] = new Vector3(transform.position.x + 1, getHeight(transform.position.x + 1, transform.position.z), transform.position.z);
             normVecs[2] = new Vector3(transform.position.x, getHeight(transform.position.x, transform.position.z + 1), transform.position.z + 1);
@@ -114,10 +106,7 @@ public class AutoBallMove : MonoBehaviour
             side2 = normVecs[2] - normVecs[0];
 
             perp = Vector3.Cross(side2, side1);
-            //Debug.Log("perp y " + perp.y.ToString("N3"));
-            Debug.Log("노말 전 " + perp);
             perp = perp.normalized;
-            Debug.Log("PERP " + perp);
 
             // 중력
             float height = getHeight(transform.position.x, transform.position.z);
@@ -132,10 +121,10 @@ public class AutoBallMove : MonoBehaviour
             }
 
             //마찰력
-            greenFriction = Mathf.Lerp(0.5f, 0.3f, velocity.magnitude / T); // 운동, 정지 마찰력 //  0.3f * (Vector3.Magnitude(velocity) / T) + 0.4f * ((T - Vector3.Magnitude(velocity) / T));
+            greenFriction = Mathf.Lerp(0.8f, 0.3f, velocity.magnitude / T); // 운동, 정지 마찰력 //  0.3f * (Vector3.Magnitude(velocity) / T) + 0.4f * ((T - Vector3.Magnitude(velocity) / T));
             FrictionA = -perp.y * gravity.y * velocity.normalized * greenFriction;
 
-            velocity += (gravityA + FrictionA) * Time.deltaTime*5f;
+            velocity += (gravityA + FrictionA) * Time.deltaTime;
             //transform.position += velocity * Time.deltaTime;
             transform.Translate(velocity * Time.deltaTime); // local 좌표로 이동
             height = getHeight(transform.position.x, transform.position.z);
@@ -151,10 +140,10 @@ public class AutoBallMove : MonoBehaviour
     float getHeight(float x, float z)
     {
         float ld, rd, lu, ru;
-        ld = td.GetHeight(Mathf.FloorToInt(x), Mathf.FloorToInt(z));
-        rd = td.GetHeight(Mathf.CeilToInt(x), Mathf.FloorToInt(z));
-        lu = td.GetHeight(Mathf.FloorToInt(x), Mathf.CeilToInt(z));
-        ru = td.GetHeight(Mathf.CeilToInt(x), Mathf.CeilToInt(z));
+        ld = terrain.SampleHeight(new Vector3(Mathf.FloorToInt(x), 0f, Mathf.FloorToInt(z))); // td.GetHeight(Mathf.FloorToInt(x), Mathf.FloorToInt(z));
+        rd = terrain.SampleHeight(new Vector3(Mathf.CeilToInt(x), 0f, Mathf.FloorToInt(z)));  //td.GetHeight(Mathf.CeilToInt(x), Mathf.FloorToInt(z));
+        lu = terrain.SampleHeight(new Vector3(Mathf.FloorToInt(x), 0f, Mathf.CeilToInt(z))); //td.GetHeight(Mathf.FloorToInt(x), Mathf.CeilToInt(z)); 
+        ru = terrain.SampleHeight(new Vector3(Mathf.CeilToInt(x), 0f, Mathf.CeilToInt(z))); //td.GetHeight(Mathf.CeilToInt(x), Mathf.CeilToInt(z));
         float l, r;
         l = Mathf.Lerp(ld, lu, z - Mathf.Floor(z));
         r = Mathf.Lerp(rd, ru, z - Mathf.Floor(z));
@@ -165,8 +154,23 @@ public class AutoBallMove : MonoBehaviour
         if(collision.gameObject.name== "GeneratedGreen")
         {
             Debug.Log("Green collied with a ball");
-            //GetComponent<Rigidbody>().isKinematic = true;
+            GetComponent<Rigidbody>().isKinematic = true;
             isColliedGGreen = true;
         }
+    }
+    void CreateObjs()
+    {
+        for(int i = 75; i < 375; i++)
+        {
+            for(int j = 75; j < 375; j++)
+            {
+                Instantiate(obj, new Vector3(i,terrain.SampleHeight(new Vector3(i,0,j)),j), Quaternion.identity);
+            }
+        }
+    }
+
+    public void ChangeAngle(float y)
+    {
+        transform.Rotate(new Vector3(0, y, 0));
     }
 }

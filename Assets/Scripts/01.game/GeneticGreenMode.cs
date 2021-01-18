@@ -23,7 +23,7 @@ public class GeneticGreenMode : Progress
 
     public Vector3 stoppedPos;
 
-    double angle;
+    float angle;
 
     // Start is called before the first frame update
     void Start()
@@ -103,7 +103,15 @@ public class GeneticGreenMode : Progress
             angle = Mathf.Atan2((stoppedPos.z - startPos.transform.position.z), (stoppedPos.x - startPos.transform.position.x)) * Mathf.Rad2Deg
                 - Mathf.Atan2((hole.transform.position.z - startPos.transform.position.z), (hole.transform.position.x - startPos.transform.position.x)) * Mathf.Rad2Deg;
             Debug.Log("ANGLE " +angle); // 각도 계산이 잘 안됨
-            //nextState();
+            if (!abm.succeed)
+            {
+                abm.ChangeAngle(angle);
+                nextState();
+            }
+            else
+            {
+                Debug.Log("들어감");
+            }
         }
     }
     
