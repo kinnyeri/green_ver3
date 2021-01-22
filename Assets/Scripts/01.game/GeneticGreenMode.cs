@@ -22,6 +22,7 @@ public class GeneticGreenMode : Progress
     public Vector3 userVeloc;
 
     public Vector3 stoppedPos;
+    private int count = 0;
 
     float angle;
 
@@ -43,7 +44,7 @@ public class GeneticGreenMode : Progress
         {
             //terrain 완성한 후에 state 시작
             run(state);
-        }        
+        } 
     }
     protected void nextState()
     {
@@ -65,8 +66,16 @@ public class GeneticGreenMode : Progress
         {
             if (isNewStart)
             {
+                if (count >= 10 || abm.succeed)
+                {
+                    abm.succeed = false;
+                    startPos.transform.position = new Vector3(random.Next(100, 200), 8f, random.Next(100, 200));
+                    count = 0;
+                    Debug.Log("10번 넘어감");
+                }
                 ball.transform.position = startPos.transform.position;
                 isNewStart = false;
+
             }
             cameraPos.transform.position = startCameraPos.transform.position;
             Debug.Log("Chaged Pos : " + ball.transform.position.x + ", " + ball.transform.position.z);
@@ -90,6 +99,11 @@ public class GeneticGreenMode : Progress
             Debug.Log("Stopped");
             nextState();
         }
+        /*
+        if(Vector3.Distance(hole.transform.position, startPos.transform.position) < Vector3.Distance(hole.transform.position, ball.transform.position))
+        {
+            isNewStart=
+        }*/
     }
     public override void endState()
     {
@@ -99,7 +113,8 @@ public class GeneticGreenMode : Progress
             abm.finish = false; // 초기화
             stoppedPos = ball.transform.position;
             Debug.Log("Start Examine : " + stoppedPos.x + ", " + stoppedPos.z);
-
+            count++;
+            Debug.Log("count" + count);
             angle = Mathf.Atan2((stoppedPos.z - startPos.transform.position.z), (stoppedPos.x - startPos.transform.position.x)) * Mathf.Rad2Deg
                 - Mathf.Atan2((hole.transform.position.z - startPos.transform.position.z), (hole.transform.position.x - startPos.transform.position.x)) * Mathf.Rad2Deg;
             Debug.Log("ANGLE " +angle); // 각도 계산이 잘 안됨

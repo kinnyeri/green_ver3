@@ -1037,7 +1037,7 @@ MonoBehaviour:
   startCameraPos: {fileID: 504243747}
   hole: {fileID: 1142541111}
   tt: {fileID: 888376642}
-  userVeloc: {x: 0, y: 0, z: 50}
+  userVeloc: {x: 0, y: 0, z: 10}
   stoppedPos: {x: 0, y: 0, z: 0}
 --- !u!4 &630337513
 Transform:

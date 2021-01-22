@@ -55,7 +55,7 @@ public class AutoBallMove : MonoBehaviour
 
     void FixedUpdate()
     {
-        count++;
+        //count++;
         if (ggm.state == Progress.StateLevel.Start)
         {
             //norm
@@ -134,6 +134,7 @@ public class AutoBallMove : MonoBehaviour
             //gp.power = (Mathf.Round(velocity.z * 1000) * 0.001f);
             Debug.Log("Move " + cnt);
             Debug.Log("Velocity " + velocity);
+            
         }
     }
 
@@ -171,6 +172,7 @@ public class AutoBallMove : MonoBehaviour
 
     public void ChangeAngle(float y)
     {
+
         transform.Rotate(new Vector3(0, y, 0));
     }
 }
