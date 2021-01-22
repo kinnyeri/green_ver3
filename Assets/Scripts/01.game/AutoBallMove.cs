@@ -89,19 +89,13 @@ public class AutoBallMove : MonoBehaviour
                 Debug.Log("경계 넘어감");
                 return;
             }
-            cnt++;
-
             //norm
             tarPos = targetPlace.transform.position;
 
             normVecs[0] = new Vector3(transform.position.x, getHeight(transform.position.x, transform.position.z), transform.position.z);
             normVecs[1] = new Vector3(transform.position.x + 1, getHeight(transform.position.x + 1, transform.position.z), transform.position.z);
             normVecs[2] = new Vector3(transform.position.x, getHeight(transform.position.x, transform.position.z + 1), transform.position.z + 1);
-
-            Debug.Log("NORM 0 " + normVecs[0]);
-            Debug.Log("NORM 1 " + normVecs[1]);
-            Debug.Log("NORM 2 " + normVecs[2]);
-
+            
             side1 = normVecs[1] - normVecs[0];
             side2 = normVecs[2] - normVecs[0];
 
@@ -132,7 +126,6 @@ public class AutoBallMove : MonoBehaviour
                 transform.Translate(0, height +1f-transform.position.y, 0);
 
             //gp.power = (Mathf.Round(velocity.z * 1000) * 0.001f);
-            Debug.Log("Move " + cnt);
             Debug.Log("Velocity " + velocity);
             
         }
@@ -172,7 +165,6 @@ public class AutoBallMove : MonoBehaviour
 
     public void ChangeAngle(float y)
     {
-
         transform.Rotate(new Vector3(0, y, 0));
     }
 }

@@ -66,13 +66,7 @@ public class GeneticGreenMode : Progress
         {
             if (isNewStart)
             {
-                if (count >= 10 || abm.succeed)
-                {
-                    abm.succeed = false;
-                    startPos.transform.position = new Vector3(random.Next(100, 200), 8f, random.Next(100, 200));
-                    count = 0;
-                    Debug.Log("10번 넘어감");
-                }
+                
                 ball.transform.position = startPos.transform.position;
                 isNewStart = false;
 
@@ -110,22 +104,32 @@ public class GeneticGreenMode : Progress
         Debug.Log("End State");
         if (abm.finish)
         {
-            abm.finish = false; // 초기화
+            
             stoppedPos = ball.transform.position;
-            Debug.Log("Start Examine : " + stoppedPos.x + ", " + stoppedPos.z);
             count++;
             Debug.Log("count" + count);
+            Debug.Log("Start Examine : " + stoppedPos.x + ", " + stoppedPos.z);
+            // 각도 계산 
             angle = Mathf.Atan2((stoppedPos.z - startPos.transform.position.z), (stoppedPos.x - startPos.transform.position.x)) * Mathf.Rad2Deg
-                - Mathf.Atan2((hole.transform.position.z - startPos.transform.position.z), (hole.transform.position.x - startPos.transform.position.x)) * Mathf.Rad2Deg;
-            Debug.Log("ANGLE " +angle); // 각도 계산이 잘 안됨
-            if (!abm.succeed)
+                - Mathf.Atan2((hole.transform.position.z - startPos.transform.position.z), (hole.transform.position.x - startPos.transform.position.x)) * Mathf.Rad2Deg; 
+            Debug.Log("ANGLE " +angle);
+            abm.finish = false; // 초기화
+            if (count >= 10||abm.succeed)
+            {
+                startPos.transform.position = new Vector3(random.Next(100, 200), 8f, random.Next(100, 200));
+                count = 0;
+                if(count==10) Debug.Log("10번 넘어감");
+                if (abm.succeed)
+                {
+                    Debug.Log("들어감");
+                    abm.succeed = false;
+                }
+                nextState();
+            }
+            else if (!abm.succeed)
             {
                 abm.ChangeAngle(angle);
                 nextState();
-            }
-            else
-            {
-                Debug.Log("들어감");
             }
         }
     }
