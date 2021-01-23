@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class GeneticGreenMode : Progress
 {
@@ -123,7 +124,7 @@ public class GeneticGreenMode : Progress
             //거리 비율 저장
             distanceRate.Add(Mathf.Sqrt(Mathf.Pow(hole.transform.position.x, 2) + Mathf.Pow(hole.transform.position.z, 2)) / Mathf.Sqrt(Mathf.Pow(stoppedPos.x,2)+ Mathf.Pow(stoppedPos.z, 2)));
             Debug.Log("ANGLE " +angle);
-            Debug.Log("distanceRate " + distanceRate[countRound]);
+            Debug.Log("distanceRate " + countRound + "번째"+ distanceRate[countRound]);
 
             countRound++;
             abm.finish = false; // 초기화
@@ -145,6 +146,26 @@ public class GeneticGreenMode : Progress
             //    abm.ChangeAngle(angle);
             //    nextState();
             //}
+        }
+        Debug.Log("countRound" + countRound);
+        if(countRound ==20)
+        {
+            float avgDistance=0, avgAngle = 0;
+            float DeviationOfDistance = 0, DeviationOfAngle = 0;
+            float sumOfDistance = 0, sumOfAngle=0;
+            avgDistance = distanceRate.Average();
+            avgAngle = rightAngle.Average();
+            for (int i=0; i<countRound; i++)
+            {
+                sumOfDistance += Mathf.Pow(distanceRate[i] - avgDistance,2);
+                sumOfAngle += Mathf.Pow(rightAngle[i] - avgAngle, 2);
+            }
+            DeviationOfDistance = Mathf.Sqrt(sumOfDistance / (countRound));
+            DeviationOfAngle = Mathf.Sqrt(sumOfAngle / (countRound));
+            Debug.Log("거리 평균: " + avgDistance + "표준편차:" + DeviationOfDistance);
+            Debug.Log("각도 평균: " + avgAngle + "표준편차:" + DeviationOfAngle);
+            countRound = 0;
+
         }
     }
     
