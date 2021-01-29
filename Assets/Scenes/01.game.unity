@@ -1039,6 +1039,7 @@ MonoBehaviour:
   tt: {fileID: 888376642}
   userVeloc: {x: 0, y: 0, z: 10}
   stoppedPos: {x: 0, y: 0, z: 0}
+  standScore: 0.15
 --- !u!4 &630337513
 Transform:
   m_ObjectHideFlags: 0

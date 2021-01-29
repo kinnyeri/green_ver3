@@ -26,8 +26,13 @@ public class GeneticGreenMode : Progress
     private int count = 0;
 
     float angle;
-    List<float> rightAngle;
-    List<float> distanceRate;
+    public float standScore;
+    List<float> rightAngleList;
+    List<float> scoreList;  //1- disance
+    List<float> probList;
+
+    List<float> distanceRateList;
+    List<float> velocList;
     int countRound = 0;
     // Start is called before the first frame update
     void Start()
@@ -39,8 +44,11 @@ public class GeneticGreenMode : Progress
         hole.transform.position = new Vector3(random.Next(100, 200), 3.1f, random.Next(100, 200));
         startPos.transform.position = new Vector3(random.Next(100, 200), 8f, random.Next(100, 200));
 
-        rightAngle = new List<float>();
-        distanceRate  = new List<float>();
+        rightAngleList = new List<float>();
+        distanceRateList  = new List<float>();
+        scoreList = new List<float>();
+        velocList = new List<float>();
+        probList = new List<float>();
     }
 
     // Update is called once per frame
@@ -89,6 +97,7 @@ public class GeneticGreenMode : Progress
     }
     public override void readyState() {
         Debug.Log("Ready State");
+        userVeloc = new Vector3(0, 0, Random.RandomRange(10f, 50f));
         abm.setVelocity(userVeloc);
         nextState();
     }
@@ -108,65 +117,92 @@ public class GeneticGreenMode : Progress
     }
     public override void endState()
     {
-        Debug.Log("End State");
+        Debug.Log("End State ");
         if (abm.finish)
         {
-            
+            if (abm.succeed)
+            {
+                //홀에 들어갔을 경우
+                Debug.Log("들어감");
+                abm.succeed = false;
+            }
             stoppedPos = ball.transform.position;
-            count++;
+            
             
             Debug.Log("count" + count);
             Debug.Log("Start Examine : " + stoppedPos.x + ", " + stoppedPos.z);
             // 각도 계산 
             angle = Mathf.Atan2((stoppedPos.z - startPos.transform.position.z), (stoppedPos.x - startPos.transform.position.x)) * Mathf.Rad2Deg
                 - Mathf.Atan2((hole.transform.position.z - startPos.transform.position.z), (hole.transform.position.x - startPos.transform.position.x)) * Mathf.Rad2Deg;
-            rightAngle.Add(angle); // 각도 저장
+            rightAngleList.Add(angle); // 각도 저장
             //거리 비율 저장
-            distanceRate.Add(Mathf.Sqrt(Mathf.Pow(hole.transform.position.x, 2) + Mathf.Pow(hole.transform.position.z, 2)) / Mathf.Sqrt(Mathf.Pow(stoppedPos.x,2)+ Mathf.Pow(stoppedPos.z, 2)));
+            distanceRateList.Add(Mathf.Sqrt(Mathf.Pow(hole.transform.position.x, 2) + Mathf.Pow(hole.transform.position.z, 2)) / Mathf.Sqrt(Mathf.Pow(stoppedPos.x,2)+ Mathf.Pow(stoppedPos.z, 2)));
+            scoreList.Add(Mathf.Abs(1 - distanceRateList[count])); // |1-distanceRate|
+            //속도 저장
+            velocList.Add(userVeloc.z);
+            
             Debug.Log("ANGLE " +angle);
-            Debug.Log("distanceRate " + countRound + "번째"+ distanceRate[countRound]);
-
-            countRound++;
+            Debug.Log("distanceRateList " + count + "번째"+ distanceRateList[count]);
+            Debug.Log("score " + scoreList[count]);
             abm.finish = false; // 초기화
-            if (count >= 1 || abm.succeed) //count>=10이었다
+            count++;
+            if (count == 10)
             {
-                startPos.transform.position = new Vector3(random.Next(100, 200), 8f, random.Next(100, 200));
-                count = 0;
-                //if(count==10) Debug.Log("10번 넘어감");
-                if (abm.succeed)
+                Debug.Log("countRound" + countRound);
+                float avgDistance = 0, avgAngle = 0, avgScore=0;
+                float DeviationOfDistance = 0, DeviationOfAngle = 0, DeviationOfScore = 0 ;
+                float sumOfDistance = 0, sumOfAngle = 0, sumOfScore = 0 ;
+
+                avgDistance = distanceRateList.Average();
+                avgAngle = rightAngleList.Average();
+                avgScore = scoreList.Average();
+
+                for (int i = 0; i < count; i++)
                 {
-                    //홀에 들어갔을 경우
-                    Debug.Log("들어감");
-                    abm.succeed = false;
+                    sumOfDistance += Mathf.Pow(distanceRateList[i] - avgDistance, 2);
+                    sumOfAngle += Mathf.Pow(rightAngleList[i] - avgAngle, 2);
+                    sumOfScore += Mathf.Pow(scoreList[i] - avgScore, 2);
                 }
-                nextState();
+                DeviationOfDistance = Mathf.Sqrt(sumOfDistance / (count));
+                DeviationOfAngle = Mathf.Sqrt(sumOfAngle / (count));
+                DeviationOfScore = Mathf.Sqrt(sumOfScore / (count));
+
+                //Debug.Log("거리 평균: " + avgDistance + "표준편차:" + DeviationOfDistance);
+                //Debug.Log("각도 평균: " + avgAngle + "표준편차:" + DeviationOfAngle);
+                Debug.Log("점수 평균: " + avgScore + "표준편차:" + DeviationOfScore);
+
+                probList.Add(Mathf.Abs((standScore - avgScore) / DeviationOfScore));
+                Debug.Log("정규화 " + probList[countRound]);
+                //초기화
+                rightAngleList.Clear();
+                scoreList.Clear();
+                distanceRateList.Clear();
+                startPos.transform.position = new Vector3(random.Next(100, 200), 8f, random.Next(100, 200));
+                countRound++;
+                count = 0;
             }
+
+            nextState();
+            //if (count >= 1 || abm.succeed) //count>=10이었다
+            //{
+            //    count = 0;
+            //    //if(count==10) Debug.Log("10번 넘어감");
+            //    if (abm.succeed)
+            //    {
+            //        //홀에 들어갔을 경우
+            //        Debug.Log("들어감");
+            //        abm.succeed = false;
+            //    }
+            //    nextState();
+            //}
             //else if (!abm.succeed)
             //{
             //    abm.ChangeAngle(angle);
             //    nextState();
             //}
         }
-        Debug.Log("countRound" + countRound);
-        if(countRound ==20)
-        {
-            float avgDistance=0, avgAngle = 0;
-            float DeviationOfDistance = 0, DeviationOfAngle = 0;
-            float sumOfDistance = 0, sumOfAngle=0;
-            avgDistance = distanceRate.Average();
-            avgAngle = rightAngle.Average();
-            for (int i=0; i<countRound; i++)
-            {
-                sumOfDistance += Mathf.Pow(distanceRate[i] - avgDistance,2);
-                sumOfAngle += Mathf.Pow(rightAngle[i] - avgAngle, 2);
-            }
-            DeviationOfDistance = Mathf.Sqrt(sumOfDistance / (countRound));
-            DeviationOfAngle = Mathf.Sqrt(sumOfAngle / (countRound));
-            Debug.Log("거리 평균: " + avgDistance + "표준편차:" + DeviationOfDistance);
-            Debug.Log("각도 평균: " + avgAngle + "표준편차:" + DeviationOfAngle);
-            countRound = 0;
-
-        }
+        
+        
     }
     
 }
