@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System.Windows;
 
 public class GeneticGreenMode : Progress
 {
@@ -21,34 +22,45 @@ public class GeneticGreenMode : Progress
     public testTerraiin tt;
 
     public Vector3 userVeloc;
-
+    Vector3 findAnsVeloc; 
     public Vector3 stoppedPos;
     private int count = 0;
 
     float angle;
-    public float standScore;
-    List<float> rightAngleList;
-    List<float> scoreList;  //1- disance
-    List<float> probList;
 
-    List<float> distanceRateList;
+    List<float> rightAngleList;
+
+    List<float> probList; //확률 저장
+
+    List<float> angleList;
     List<float> velocList;
+    List<float> distanceList;
+
     int countRound = 0;
+
     // Start is called before the first frame update
+
+    bool foundAns, isFirstStartForAns;
     void Start()
     {
         random = new System.Random();
 
         state = 0;
 
+        //정답 찾기
+        foundAns = false;
+        isFirstStartForAns = true;
+
         hole.transform.position = new Vector3(random.Next(100, 200), 3.1f, random.Next(100, 200));
         startPos.transform.position = new Vector3(random.Next(100, 200), 8f, random.Next(100, 200));
+        findAnsVeloc = new Vector3(0, 0, 20);
 
         rightAngleList = new List<float>();
-        distanceRateList  = new List<float>();
-        scoreList = new List<float>();
+        angleList = new List<float>();
+        distanceList = new List<float>();
         velocList = new List<float>();
         probList = new List<float>();
+
     }
 
     // Update is called once per frame
@@ -58,7 +70,9 @@ public class GeneticGreenMode : Progress
         {
             //terrain 완성한 후에 state 시작
             run(state);
-        } 
+            Debug.Log("update State : " + state);
+
+        }
     }
     protected void nextState()
     {
@@ -68,7 +82,6 @@ public class GeneticGreenMode : Progress
             return;
         }
         state++;
-        Debug.Log("Next State : "+state);
     }
 
     bool isNewStart = true;
@@ -76,30 +89,56 @@ public class GeneticGreenMode : Progress
     public override void startState()
     {
         Debug.Log("Start State");
-        if (!abm.finish)
+        //if (!foundAns)
+        //{
+        //    Debug.Log("정답 각도 찾기");
+        //    if (isFirstStartForAns)
+        //    {
+        //        isFirstStartForAns = false;
+        //    }
+
+        //    //if (isNewStart)
+        //    //{
+        //    //    ball.transform.position = startPos.transform.position;
+        //    //    isNewStart = false;
+        //    //}
+        //}
+        if (!foundAns)
         {
-            if (isNewStart)
-            {
-                //새 스타트 위치
-                ball.transform.position = startPos.transform.position;
-                //각도 랜덤 생성
-                abm.ChangeAngle(Random.Range(-180f,180f));
-                isNewStart = false;
-            }
-            cameraPos.transform.position = startCameraPos.transform.position;
-            Debug.Log("Chaged Pos : " + ball.transform.position.x + ", " + ball.transform.position.z);
-            if (abm.isColliedGGreen)
-            {
-                isNewStart = true;
-                nextState();
-            }
+            Debug.Log("정답 각도 찾기 "+countRound);
         }
+        if (isNewStart)
+        {
+            //새 스타트 위치
+            ball.transform.position = startPos.transform.position;
+            //각도 랜덤 생성
+            //abm.ChangeAngle(Random.Range(-180f, 180f));
+            isNewStart = false;
+        }
+
+        cameraPos.transform.position = startCameraPos.transform.position;
+        if (abm.isColliedGGreen)
+        {
+            isNewStart = true;
+            Debug.Log("first veloc " + findAnsVeloc.z);
+            nextState();
+        }
+
     }
     public override void readyState() {
         Debug.Log("Ready State");
-        userVeloc = new Vector3(0, 0, Random.RandomRange(10f, 50f));
-        abm.setVelocity(userVeloc);
-        nextState();
+        if (!foundAns)
+        {
+            Debug.Log("못찾음");
+
+            abm.setVelocity(findAnsVeloc);
+            nextState();
+        }
+        else
+        {
+            abm.setVelocity(userVeloc);
+            nextState();
+        }
     }
     public override void rollState()
     {
@@ -109,100 +148,122 @@ public class GeneticGreenMode : Progress
             Debug.Log("Stopped");
             nextState();
         }
-        /*
-        if(Vector3.Distance(hole.transform.position, startPos.transform.position) < Vector3.Distance(hole.transform.position, ball.transform.position))
-        {
-            isNewStart=
-        }*/
     }
     public override void endState()
     {
         Debug.Log("End State ");
-        if (abm.finish)
+        stoppedPos = ball.transform.position;
+        // 각도 계산 
+        angle = Mathf.Atan2((stoppedPos.z - startPos.transform.position.z), (stoppedPos.x - startPos.transform.position.x)) * Mathf.Rad2Deg
+            - Mathf.Atan2((hole.transform.position.z - startPos.transform.position.z), (hole.transform.position.x - startPos.transform.position.x)) * Mathf.Rad2Deg;
+        
+      if (!foundAns)
         {
             if (abm.succeed)
             {
                 //홀에 들어갔을 경우
                 Debug.Log("들어감");
-                abm.succeed = false;
+                foundAns = true;
+                rightAngleList.Add(abm.transform.rotation.z); // 정답 각도 저장 //1회 -0까지만 있음
             }
-            stoppedPos = ball.transform.position;
-            
-            
+            else
+            {
+                Debug.Log("못 들어감");
+                abm.ChangeAngle(angle);
+                
+            }
+        }
+        else
+        {
             Debug.Log("count" + count);
             Debug.Log("Start Examine : " + stoppedPos.x + ", " + stoppedPos.z);
-            // 각도 계산 
-            angle = Mathf.Atan2((stoppedPos.z - startPos.transform.position.z), (stoppedPos.x - startPos.transform.position.x)) * Mathf.Rad2Deg
-                - Mathf.Atan2((hole.transform.position.z - startPos.transform.position.z), (hole.transform.position.x - startPos.transform.position.x)) * Mathf.Rad2Deg;
-            rightAngleList.Add(angle); // 각도 저장
+
             //거리 비율 저장
-            distanceRateList.Add(Mathf.Sqrt(Mathf.Pow(hole.transform.position.x, 2) + Mathf.Pow(hole.transform.position.z, 2)) / Mathf.Sqrt(Mathf.Pow(stoppedPos.x,2)+ Mathf.Pow(stoppedPos.z, 2)));
-            scoreList.Add(Mathf.Abs(1 - distanceRateList[count])); // |1-distanceRate|
-            //속도 저장
+            //distanceRateList.Add(Mathf.Sqrt(Mathf.Pow(hole.transform.position.x, 2) + Mathf.Pow(hole.transform.position.z, 2)) / Mathf.Sqrt(Mathf.Pow(stoppedPos.x, 2) + Mathf.Pow(stoppedPos.z, 2)));
+            //scoreList.Add(Mathf.Abs(1 - distanceRateList[count])); // |1-distanceRate|
+            distanceList.Add(Mathf.Sqrt(Mathf.Pow(hole.transform.position.x - stoppedPos.x, 2) + Mathf.Pow(hole.transform.position.z - stoppedPos.z, 2)));
+
+            Debug.Log("ANGLE " + angle);
+            Debug.Log("DISTAN " + distanceList[count]);
+
+            //Debug.Log("distanceRateList " + count + "번째" + distanceRateList[count]);
+            //Debug.Log("score " + scoreList[count]);
+
+            float temp = Random.Range(-5f, 5f);
+            userVeloc = new Vector3(0, 0, findAnsVeloc.z + temp);
+            temp = Random.Range(-25f, 25f);
+            angle = rightAngleList[countRound] + temp;
+
             velocList.Add(userVeloc.z);
-            
-            Debug.Log("ANGLE " +angle);
-            Debug.Log("distanceRateList " + count + "번째"+ distanceRateList[count]);
-            Debug.Log("score " + scoreList[count]);
-            abm.finish = false; // 초기화
+            angleList.Add(angle);
+
+            Debug.Log("userVeloc  " +count+" "+ userVeloc.z);
+            Debug.Log("try angle " +count+" "+ angle);
+
             count++;
             if (count == 10)
             {
                 Debug.Log("countRound" + countRound);
-                float avgDistance = 0, avgAngle = 0, avgScore=0;
-                float DeviationOfDistance = 0, DeviationOfAngle = 0, DeviationOfScore = 0 ;
-                float sumOfDistance = 0, sumOfAngle = 0, sumOfScore = 0 ;
+                float avgDistance = 0, avgAngle = 0;
+                float DeviationOfDistance = 0, DeviationOfAngle = 0;
+                float sumOfDistance = 0, sumOfAngle = 0;
 
-                avgDistance = distanceRateList.Average();
-                avgAngle = rightAngleList.Average();
-                avgScore = scoreList.Average();
+                avgDistance = distanceList.Average();
+                //avgAngle = rightAngleList.Average();
+                //avgScore = scoreList.Average();
 
                 for (int i = 0; i < count; i++)
                 {
-                    sumOfDistance += Mathf.Pow(distanceRateList[i] - avgDistance, 2);
-                    sumOfAngle += Mathf.Pow(rightAngleList[i] - avgAngle, 2);
-                    sumOfScore += Mathf.Pow(scoreList[i] - avgScore, 2);
+                   sumOfDistance += Mathf.Pow(distanceList[i] - avgDistance, 2);
+                    //sumOfAngle += Mathf.Pow(rightAngleList[i] - avgAngle, 2);
+                    //sumOfScore += Mathf.Pow(scoreList[i] - avgScore, 2);
                 }
                 DeviationOfDistance = Mathf.Sqrt(sumOfDistance / (count));
-                DeviationOfAngle = Mathf.Sqrt(sumOfAngle / (count));
-                DeviationOfScore = Mathf.Sqrt(sumOfScore / (count));
+                //DeviationOfAngle = Mathf.Sqrt(sumOfAngle / (count));
+                //DeviationOfScore = Mathf.Sqrt(sumOfScore / (count));
 
-                //Debug.Log("거리 평균: " + avgDistance + "표준편차:" + DeviationOfDistance);
+                Debug.Log("거리 평균: " + avgDistance + "표준편차:" + DeviationOfDistance);
                 //Debug.Log("각도 평균: " + avgAngle + "표준편차:" + DeviationOfAngle);
-                Debug.Log("점수 평균: " + avgScore + "표준편차:" + DeviationOfScore);
-
-                probList.Add(Mathf.Abs((standScore - avgScore) / DeviationOfScore));
-                Debug.Log("정규화 " + probList[countRound]);
+                //Debug.Log("점수 평균: " + avgScore + "표준편차:" + DeviationOfScore);
+                //Debug.Log(countRound + " " + StatisticFormula.NormalDistribution(Mathf.Abs((1 - avgDistance) / DeviationOfDistance)));
+                
+                //probList.Add(Mathf.Abs((standScore - avgScore) / DeviationOfScore));
+                //Debug.Log("정규화 " + probList[countRound]);
                 //초기화
-                rightAngleList.Clear();
-                scoreList.Clear();
-                distanceRateList.Clear();
+                //rightAngleList.Clear();
+                distanceList.Clear();
+                angleList.Clear();
                 startPos.transform.position = new Vector3(random.Next(100, 200), 8f, random.Next(100, 200));
+                foundAns = false;
                 countRound++;
                 count = 0;
+                //정답 부터 다시 찾기
             }
-
-            nextState();
-            //if (count >= 1 || abm.succeed) //count>=10이었다
-            //{
-            //    count = 0;
-            //    //if(count==10) Debug.Log("10번 넘어감");
-            //    if (abm.succeed)
-            //    {
-            //        //홀에 들어갔을 경우
-            //        Debug.Log("들어감");
-            //        abm.succeed = false;
-            //    }
-            //    nextState();
-            //}
-            //else if (!abm.succeed)
-            //{
-            //    abm.ChangeAngle(angle);
-            //    nextState();
-            //}
         }
-        
-        
+        abm.turnOffKinematic();
+        abm.isColliedGGreen = false;
+        abm.finish = false; // 초기화
+        nextState();
+        //if (count >= 1 || abm.succeed) //count>=10이었다
+        //{
+        //    count = 0;
+        //    //if(count==10) Debug.Log("10번 넘어감");
+        //    if (abm.succeed)
+        //    {
+        //        //홀에 들어갔을 경우
+        //        Debug.Log("들어감");
+        //        abm.succeed = false;
+        //    }
+        //    nextState();
+        //}
+        //else if (!abm.succeed)
+        //{
+        //    abm.ChangeAngle(angle);
+        //    nextState();
+        //}
     }
+        
+        
+    
     
 }

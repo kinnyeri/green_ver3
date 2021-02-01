@@ -62,7 +62,7 @@ public class AutoBallMove : MonoBehaviour
             tarPos = targetPlace.transform.position;
             Debug.Log("td " + getHeight(transform.position.x, transform.position.z));
             Debug.Log("t " + transform.position.x);
-            
+
         }
         if (ggm.state == Progress.StateLevel.Roll)
         {
@@ -83,7 +83,7 @@ public class AutoBallMove : MonoBehaviour
                 Debug.Log("Veloc : " + velocity.z);
                 return;
             }
-            if(transform.position.x<75||transform.position.x>375|| transform.position.z < 75 || transform.position.z > 375)
+            if (transform.position.x < 75 || transform.position.x > 375 || transform.position.z < 75 || transform.position.z > 375)
             {
                 finish = true;
                 Debug.Log("경계 넘어감");
@@ -95,7 +95,7 @@ public class AutoBallMove : MonoBehaviour
             normVecs[0] = new Vector3(transform.position.x, getHeight(transform.position.x, transform.position.z), transform.position.z);
             normVecs[1] = new Vector3(transform.position.x + 1, getHeight(transform.position.x + 1, transform.position.z), transform.position.z);
             normVecs[2] = new Vector3(transform.position.x, getHeight(transform.position.x, transform.position.z + 1), transform.position.z + 1);
-            
+
             side1 = normVecs[1] - normVecs[0];
             side2 = normVecs[2] - normVecs[0];
 
@@ -105,13 +105,13 @@ public class AutoBallMove : MonoBehaviour
             // 중력
             float height = getHeight(transform.position.x, transform.position.z);
             Vector3 gravityA;
-            if (transform.position.y <=  height + 1f )
+            if (transform.position.y <= height + 1f)
             {
                 gravityA = new Vector3(gravity.y * perp.x, gravity.y * (perp.y - 1.5f), gravity.y * perp.z);
             }
             else
             {
-                gravityA = new Vector3(0, -gravity.y , 0);
+                gravityA = new Vector3(0, -gravity.y, 0);
             }
 
             //마찰력
@@ -122,12 +122,12 @@ public class AutoBallMove : MonoBehaviour
             //transform.position += velocity * Time.deltaTime;
             transform.Translate(velocity * Time.deltaTime); // local 좌표로 이동
             height = getHeight(transform.position.x, transform.position.z);
-            if(height + 1f > transform.position.y)
-                transform.Translate(0, height +1f-transform.position.y, 0);
+            if (height + 1f > transform.position.y)
+                transform.Translate(0, height + 1f - transform.position.y, 0);
 
             //gp.power = (Mathf.Round(velocity.z * 1000) * 0.001f);
             Debug.Log("Velocity " + velocity);
-            
+
         }
     }
 
@@ -145,13 +145,19 @@ public class AutoBallMove : MonoBehaviour
     }
     void OnCollisionEnter(Collision collision)
     {
-        if(collision.gameObject.name== "GeneratedGreen")
+        if (collision.gameObject.name == "GeneratedGreen")
         {
             Debug.Log("Green collied with a ball");
             GetComponent<Rigidbody>().isKinematic = true;
             isColliedGGreen = true;
         }
     }
+    public void turnOffKinematic()
+    {
+        GetComponent<Rigidbody>().isKinematic = false;
+
+    }
+
     void CreateObjs()
     {
         for(int i = 75; i < 375; i++)
