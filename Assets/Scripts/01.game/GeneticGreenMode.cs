@@ -25,6 +25,8 @@ public class GeneticGreenMode : Progress
     Vector3 findAnsVeloc; 
     public Vector3 stoppedPos;
     private int count = 0;
+    private int AnsCount = 0;
+    private int standScore=10;
 
     float angle;
 
@@ -169,8 +171,15 @@ public class GeneticGreenMode : Progress
             else
             {
                 Debug.Log("못 들어감");
+                AnsCount++;
                 abm.ChangeAngle(angle);
-                
+                if(AnsCount == 10)
+                {
+                    startPos.transform.position = new Vector3(random.Next(100, 200), 8f, random.Next(100, 200));
+                    AnsCount = 0;
+                    angle = 0;
+                }
+            
             }
         }
         else
@@ -226,9 +235,9 @@ public class GeneticGreenMode : Progress
                 //Debug.Log("각도 평균: " + avgAngle + "표준편차:" + DeviationOfAngle);
                 //Debug.Log("점수 평균: " + avgScore + "표준편차:" + DeviationOfScore);
                 //Debug.Log(countRound + " " + StatisticFormula.NormalDistribution(Mathf.Abs((1 - avgDistance) / DeviationOfDistance)));
-                
-                //probList.Add(Mathf.Abs((standScore - avgScore) / DeviationOfScore));
-                //Debug.Log("정규화 " + probList[countRound]);
+                probList.Add(Mathf.Abs((standScore - avgDistance) / DeviationOfDistance));
+                Debug.Log("정규화 " + probList[countRound]+"성공확률" + Phi(probList[countRound], 2));
+
                 //초기화
                 //rightAngleList.Clear();
                 distanceList.Clear();
@@ -237,6 +246,7 @@ public class GeneticGreenMode : Progress
                 foundAns = false;
                 countRound++;
                 count = 0;
+                abm.succeed = false;
                 //정답 부터 다시 찾기
             }
         }
@@ -262,8 +272,23 @@ public class GeneticGreenMode : Progress
         //    nextState();
         //}
     }
-        
-        
-    
-    
+
+    public static double Phi(double x, int n)
+    {
+        double sum = 0;
+        double x2 = x * x;
+        double nom = x;
+        double denom = 1;
+        double c = 1;
+        for (int i = 0; i < n; i++)
+        {
+            sum += nom / denom;
+            c += 2;
+            nom *= x2;
+            denom *= c;
+        }
+        return 0.5 + sum * System.Math.Exp(-x2 * 0.5) / System.Math.Sqrt(2 * System.Math.PI);
+    }
+
+
 }
