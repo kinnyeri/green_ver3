@@ -236,7 +236,7 @@ public class GeneticGreenMode : Progress
                 //Debug.Log("점수 평균: " + avgScore + "표준편차:" + DeviationOfScore);
                 //Debug.Log(countRound + " " + StatisticFormula.NormalDistribution(Mathf.Abs((1 - avgDistance) / DeviationOfDistance)));
                 probList.Add(Mathf.Abs((standScore - avgDistance) / DeviationOfDistance));
-                Debug.Log("정규화 " + probList[countRound]+"성공확률" + Phi(probList[countRound], 2));
+                Debug.Log("정규화 " + probList[countRound]+"성공확률" + Phi(probList[countRound], 10));
 
                 //초기화
                 //rightAngleList.Clear();
@@ -273,13 +273,13 @@ public class GeneticGreenMode : Progress
         //}
     }
 
-    public static double Phi(double x, int n)
+    public static double Phi(float x, int n)
     {
-        double sum = 0;
-        double x2 = x * x;
-        double nom = x;
-        double denom = 1;
-        double c = 1;
+        float sum = 0;
+        float x2 = x * x;
+        float nom = x;
+        float denom = 1;
+        float c = 1;
         for (int i = 0; i < n; i++)
         {
             sum += nom / denom;
@@ -287,7 +287,7 @@ public class GeneticGreenMode : Progress
             nom *= x2;
             denom *= c;
         }
-        return 0.5 + sum * System.Math.Exp(-x2 * 0.5) / System.Math.Sqrt(2 * System.Math.PI);
+        return 0.5 + sum * Mathf.Exp(-x2 * 0.5f) / Mathf.Sqrt(2 * Mathf.PI);
     }
 
 
