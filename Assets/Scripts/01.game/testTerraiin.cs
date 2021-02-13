@@ -7,11 +7,11 @@ public class testTerraiin : MonoBehaviour
 {
     Terrain testTerrain;
     static float sizeWeight = 1.5f;
-    private System.Random random;
+    private System.Random random = new System.Random();
 
     public float[,] Genes;
-    int RowSize = (int) (300 * sizeWeight);
-    int ColSize = (int) (300 * sizeWeight);
+    public int RowSize = (int) (300 * sizeWeight);
+    public int ColSize = (int) (300 * sizeWeight);
     int depth = 5;
 
     public int verticesNum;
@@ -26,7 +26,16 @@ public class testTerraiin : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        random = new System.Random();
+        //random = new System.Random();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+    public void startMakingGene()
+    {
         Genes = new float[RowSize, ColSize];
         GetRandomInt();
 
@@ -34,16 +43,19 @@ public class testTerraiin : MonoBehaviour
 
         Terrain terrain = GetComponent<Terrain>();
         terrain.terrainData = GenerateTerrain(terrain.terrainData);
-        Debug.Log("200,200 ::: "+terrain.terrainData.GetHeight(150,150));
-        Debug.Log("100,100 ::: "+terrain.terrainData.GetHeight(100,100));
+        Debug.Log("200,200 ::: " + terrain.terrainData.GetHeight(150, 150));
+        Debug.Log("100,100 ::: " + terrain.terrainData.GetHeight(100, 100));
         //WriteTxt(Path.Combine(Application.streamingAssetsPath, "test.txt"));
         if (finish == false) finish = true;
     }
 
-    // Update is called once per frame
-    void Update()
+    TerrainData GenerateTerrain(TerrainData terrainData)
     {
-        
+        terrainData.heightmapResolution = RowSize + 1;
+
+        terrainData.size = new Vector3(RowSize, depth, ColSize); //width, depth,height
+        terrainData.SetHeights(0, 0, Genes);
+        return terrainData;
     }
 
     private void GetRandomInt()
@@ -72,12 +84,6 @@ public class testTerraiin : MonoBehaviour
             rangeY = random.Next(30, (int)(100 * sizeWeight));
 
             center_difference = (float)random.NextDouble() - 0.5f; //랜덤``
-                                                                   //  center_difference *= 0.3f;
-                                                                   // Genes[x, y] = Genes[x, y] * 2f - 1f;
-
-            //Debug.Log(Genes[x, y]);
-            //Debug.Log("center: " + x + ", " + y);
-            //Debug.Log("range:" + rangeX + ", " + rangeY);
 
             for (float i = -rangeX / 2; i <= rangeX / 2; i++)
             {
@@ -91,63 +97,24 @@ public class testTerraiin : MonoBehaviour
 
                     Genes[tmpX, tmpY] += ((float)newHeight);
                     Genes[tmpX, tmpY] = Mathf.Clamp01(Genes[tmpX, tmpY]);
-                    //Genes[tmpX, tmpY] = 0;
-
                 }
             }
             }
-            //int cnt = 0;
-            //for (int i = 0; i < 450; i++)
-            //{
-            //    for (int j = 0; j < 450; j++)
-            //    {
-            //        if ((i < 50&&i>30) && ( j < 50 && j>30))
-            //        {
-            //            Genes[i, j] = 1f;
-            //        }
-            //        else if( i==100 && j == 100)
-            //        {
-            //            Genes[i, j] = 2f;
-            //        }
-            //        else
-            //        {
-            //            Genes[i, j] = 0.5f;
-            //        }
-            //    }
-            //}
         }
-
-    TerrainData GenerateTerrain(TerrainData terrainData)
+    public float getRandomInt()
     {
-        terrainData.heightmapResolution = RowSize + 1;
-
-        terrainData.size = new Vector3(RowSize, depth, ColSize); //width, depth,height
-        terrainData.SetHeights(0, 0, Genes);
-        return terrainData;
+        return Random.Range(1f, 10f);
     }
 
-    void WriteTxt(string filePath)
-    {
-        DirectoryInfo directoryInfo = new DirectoryInfo(Path.GetDirectoryName(filePath));
+    //public float getRandomInt(int x,int y)
+    //{
+    //    //보간 하면 좋겠다 옆에꺼랑 비교해서
 
-        if (!directoryInfo.Exists)
-        {
-            directoryInfo.Create();
-        }
+    //    int tmpX = Mathf.FloorToInt(x + i);
+    //    int tmpY = Mathf.FloorToInt(y + j);
+    //    //if ((tmpX >= RowSize || tmpX < 0) || (tmpY >= ColSize || tmpY < 0)) break;
 
-        FileStream fileStream
-            = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.Write);
-
-        StreamWriter writer = new StreamWriter(fileStream, System.Text.Encoding.Unicode);
-
-        string msg = "Genes\n";
-        for(int i = 0; i< 450; i++) {
-            for (int j = 0; j < 450; j++) {
-                msg += Genes[i, j] + " ";
-            }
-            msg += "\n";
-        }
-        writer.WriteLine(msg);
-        writer.Close();
-    }
+    //    double newHeight = center_difference * Mathf.Clamp01(1 - Mathf.Sqrt(Mathf.Pow((x - tmpX) / rangeX * 2, 2) + Mathf.Pow((y - tmpY) / rangeY * 2, 2)));
+    //    return (float)newHeight;
+    //}
 }

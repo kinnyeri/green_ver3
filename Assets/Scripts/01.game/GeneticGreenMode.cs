@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System.Windows;
+using System;
 
 public class GeneticGreenMode : Progress
 {
@@ -40,9 +41,16 @@ public class GeneticGreenMode : Progress
 
     int countRound = 0;
 
-    // Start is called before the first frame update
-
     bool foundAns, isFirstStartForAns;
+        
+    public GeneticAlgorithm ga;
+
+    float target = 1;
+    int populationSize = 50;
+    float mutationRate = 0.01f;
+    int elitism = 5;
+
+    // Start is called before the first frame update
     void Start()
     {
         random = new System.Random();
@@ -63,6 +71,7 @@ public class GeneticGreenMode : Progress
         velocList = new List<float>();
         probList = new List<float>();
 
+        ga = new GeneticAlgorithm(populationSize, new System.Random(), tt.getRandomInt, Phi, elitism, tt,mutationRate); // i should change this into func<float>
     }
 
     // Update is called once per frame
@@ -91,20 +100,6 @@ public class GeneticGreenMode : Progress
     public override void startState()
     {
         Debug.Log("Start State");
-        //if (!foundAns)
-        //{
-        //    Debug.Log("정답 각도 찾기");
-        //    if (isFirstStartForAns)
-        //    {
-        //        isFirstStartForAns = false;
-        //    }
-
-        //    //if (isNewStart)
-        //    //{
-        //    //    ball.transform.position = startPos.transform.position;
-        //    //    isNewStart = false;
-        //    //}
-        //}
         if (!foundAns)
         {
             Debug.Log("정답 각도 찾기 "+countRound);
@@ -114,7 +109,6 @@ public class GeneticGreenMode : Progress
             //새 스타트 위치
             ball.transform.position = startPos.transform.position;
             //각도 랜덤 생성
-            //abm.ChangeAngle(Random.Range(-180f, 180f));
             isNewStart = false;
         }
 
@@ -188,19 +182,13 @@ public class GeneticGreenMode : Progress
             Debug.Log("Start Examine : " + stoppedPos.x + ", " + stoppedPos.z);
 
             //거리 비율 저장
-            //distanceRateList.Add(Mathf.Sqrt(Mathf.Pow(hole.transform.position.x, 2) + Mathf.Pow(hole.transform.position.z, 2)) / Mathf.Sqrt(Mathf.Pow(stoppedPos.x, 2) + Mathf.Pow(stoppedPos.z, 2)));
-            //scoreList.Add(Mathf.Abs(1 - distanceRateList[count])); // |1-distanceRate|
             distanceList.Add(Mathf.Sqrt(Mathf.Pow(hole.transform.position.x - stoppedPos.x, 2) + Mathf.Pow(hole.transform.position.z - stoppedPos.z, 2)));
 
             Debug.Log("ANGLE " + angle);
             Debug.Log("DISTAN " + distanceList[count]);
-
-            //Debug.Log("distanceRateList " + count + "번째" + distanceRateList[count]);
-            //Debug.Log("score " + scoreList[count]);
-
-            float temp = Random.Range(-5f, 5f);
+            float temp = UnityEngine.Random.Range(-5f, 5f);
             userVeloc = new Vector3(0, 0, findAnsVeloc.z + temp);
-            temp = Random.Range(-25f, 25f);
+            temp = UnityEngine.Random.Range(-25f, 25f);
             angle = rightAngleList[countRound] + temp;
 
             velocList.Add(userVeloc.z);
@@ -213,30 +201,22 @@ public class GeneticGreenMode : Progress
             if (count == 10)
             {
                 Debug.Log("countRound" + countRound);
-                float avgDistance = 0, avgAngle = 0;
-                float DeviationOfDistance = 0, DeviationOfAngle = 0;
-                float sumOfDistance = 0, sumOfAngle = 0;
+                float avgDistance = 0;
+                float DeviationOfDistance = 0;
+                float sumOfDistance = 0;
 
                 avgDistance = distanceList.Average();
-                //avgAngle = rightAngleList.Average();
-                //avgScore = scoreList.Average();
 
                 for (int i = 0; i < count; i++)
                 {
                    sumOfDistance += Mathf.Pow(distanceList[i] - avgDistance, 2);
-                    //sumOfAngle += Mathf.Pow(rightAngleList[i] - avgAngle, 2);
-                    //sumOfScore += Mathf.Pow(scoreList[i] - avgScore, 2);
                 }
                 DeviationOfDistance = Mathf.Sqrt(sumOfDistance / (count));
-                //DeviationOfAngle = Mathf.Sqrt(sumOfAngle / (count));
-                //DeviationOfScore = Mathf.Sqrt(sumOfScore / (count));
 
                 Debug.Log("거리 평균: " + avgDistance + "표준편차:" + DeviationOfDistance);
-                //Debug.Log("각도 평균: " + avgAngle + "표준편차:" + DeviationOfAngle);
-                //Debug.Log("점수 평균: " + avgScore + "표준편차:" + DeviationOfScore);
-                //Debug.Log(countRound + " " + StatisticFormula.NormalDistribution(Mathf.Abs((1 - avgDistance) / DeviationOfDistance)));
+
                 probList.Add(Mathf.Abs((standScore - avgDistance) / DeviationOfDistance));
-                Debug.Log("정규화 " + probList[countRound]+"성공확률" + Phi(probList[countRound], 10));
+                Debug.Log("정규화 " + probList[countRound]+"성공확률" + Phi(countRound)); //probList[countRound], 10
 
                 //초기화
                 //rightAngleList.Clear();
@@ -247,6 +227,8 @@ public class GeneticGreenMode : Progress
                 countRound++;
                 count = 0;
                 abm.succeed = false;
+                this.enabled = false;
+                tt.finish = false;
                 //정답 부터 다시 찾기
             }
         }
@@ -254,27 +236,13 @@ public class GeneticGreenMode : Progress
         abm.isColliedGGreen = false;
         abm.finish = false; // 초기화
         nextState();
-        //if (count >= 1 || abm.succeed) //count>=10이었다
-        //{
-        //    count = 0;
-        //    //if(count==10) Debug.Log("10번 넘어감");
-        //    if (abm.succeed)
-        //    {
-        //        //홀에 들어갔을 경우
-        //        Debug.Log("들어감");
-        //        abm.succeed = false;
-        //    }
-        //    nextState();
-        //}
-        //else if (!abm.succeed)
-        //{
-        //    abm.ChangeAngle(angle);
-        //    nextState();
-        //}
     }
 
-    public static double Phi(float x, int n)
+    double Phi(int index)
     {
+        float x = probList[index];
+        int n = 10;
+
         float sum = 0;
         float x2 = x * x;
         float nom = x;
@@ -289,6 +257,5 @@ public class GeneticGreenMode : Progress
         }
         return 0.5 + sum * Mathf.Exp(-x2 * 0.5f) / Mathf.Sqrt(2 * Mathf.PI);
     }
-
-
+    
 }
