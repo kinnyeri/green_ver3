@@ -33,7 +33,7 @@ public class GeneticGreenMode : Progress
 
     List<float> rightAngleList;
 
-    List<float> probList; //확률 저장
+    public List<float> probList; //확률 저장
 
     List<float> angleList;
     List<float> velocList;
@@ -42,13 +42,11 @@ public class GeneticGreenMode : Progress
     int countRound = 0;
 
     bool foundAns, isFirstStartForAns;
-        
-    public GeneticAlgorithm ga;
+    public makeLevel ml;
 
-    float target = 1;
-    int populationSize = 50;
-    float mutationRate = 0.01f;
-    int elitism = 5;
+    public bool finish = false;
+
+
 
     // Start is called before the first frame update
     void Start()
@@ -71,7 +69,6 @@ public class GeneticGreenMode : Progress
         velocList = new List<float>();
         probList = new List<float>();
 
-        ga = new GeneticAlgorithm(populationSize, new System.Random(), tt.getRandomInt, Phi, elitism, tt,mutationRate); // i should change this into func<float>
     }
 
     // Update is called once per frame
@@ -224,11 +221,18 @@ public class GeneticGreenMode : Progress
                 angleList.Clear();
                 startPos.transform.position = new Vector3(random.Next(100, 200), 8f, random.Next(100, 200));
                 foundAns = false;
+
                 countRound++;
+                if (countRound == ml.populationSize)
+                {
+                    countRound = 0;
+                }
+                
                 count = 0;
                 abm.succeed = false;
                 this.enabled = false;
                 tt.finish = false;
+                finish = true;
                 //정답 부터 다시 찾기
             }
         }
@@ -237,7 +241,6 @@ public class GeneticGreenMode : Progress
         abm.finish = false; // 초기화
         nextState();
     }
-
     double Phi(int index)
     {
         float x = probList[index];
@@ -257,5 +260,4 @@ public class GeneticGreenMode : Progress
         }
         return 0.5 + sum * Mathf.Exp(-x2 * 0.5f) / Mathf.Sqrt(2 * Mathf.PI);
     }
-    
 }

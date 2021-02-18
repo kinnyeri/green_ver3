@@ -31,11 +31,16 @@ public class GeneticAlgorithm
         this.getRandomGene = getRandomGene;
         this.fitnessFunction = fitnessFunction;
         this.tt = tt;
-        //BestGenes = new float[tt.RowSize][tt.ColSize];
+        BestGenes = new float[tt.RowSize,tt.RowSize];
 
-        for (int i = 0; i < populationSize; i++)
-        { 
-            Population.Add(new DNA( tt.RowSize,random, getRandomGene, fitnessFunction,tt, shouldInitGenes: true));
+        for (int i = 0; i < populationSize;)
+        {
+            if (!tt.finish)
+            {
+                Population.Add(new DNA(tt.RowSize, random, getRandomGene, fitnessFunction, tt, shouldInitGenes: true));
+                i++;
+            }
+            
         }
     }
 
@@ -117,7 +122,8 @@ public class GeneticAlgorithm
         }
 
         BestFitness = best.Fitness;
-        best.Genes.CopyTo(BestGenes, 0);
+        Array.Copy(best.Genes, 0, BestGenes, 0, BestGenes.Length);
+        //best.Genes.CopyTo(BestGenes, 2);
     }
 
     private DNA ChooseParent()
