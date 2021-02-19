@@ -5,7 +5,7 @@ using UnityEngine;
 public class makeLevel : MonoBehaviour
 {
     float target = 0.85f;
-    public int populationSize = 2;
+    public int populationSize = 5;
     float mutationRate = 0.01f;
     int elitism = 5;
 
@@ -24,15 +24,18 @@ public class makeLevel : MonoBehaviour
     {
         if (ggm.finish)
         {
+            Debug.Log("new generation");
             ga.NewGeneration();
 
             if (ga.BestFitness >= 0.85f)
             {
                 this.enabled = false;
+                Debug.Log("fitness ok!");
             }
             else
             {
                 ggm.finish = false;
+                Debug.Log("green restart" + ggm.finish);
             }
         }
         

@@ -33,15 +33,16 @@ public class GeneticAlgorithm
         this.tt = tt;
         BestGenes = new float[tt.RowSize,tt.RowSize];
 
-        for (int i = 0; i < populationSize;)
+        for (int i = 0; i < populationSize;i++)
         {
             if (!tt.finish)
             {
+                
                 Population.Add(new DNA(tt.RowSize, random, getRandomGene, fitnessFunction, tt, shouldInitGenes: true));
-                i++;
             }
-            
+            tt.gaDebug(i + " pop size");
         }
+        tt.gaDebug("ga finish");
     }
 
     public void NewGeneration(int numNewDNA = 0, bool crossoverNewDNA = false)

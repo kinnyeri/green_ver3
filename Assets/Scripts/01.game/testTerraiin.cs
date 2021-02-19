@@ -117,4 +117,8 @@ public class testTerraiin : MonoBehaviour
     //    double newHeight = center_difference * Mathf.Clamp01(1 - Mathf.Sqrt(Mathf.Pow((x - tmpX) / rangeX * 2, 2) + Mathf.Pow((y - tmpY) / rangeY * 2, 2)));
     //    return (float)newHeight;
     //}
+    public void gaDebug(string s)
+    {
+        Debug.Log(s);
+    }
 }

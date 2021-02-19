@@ -164,7 +164,7 @@ public class GeneticGreenMode : Progress
                 Debug.Log("못 들어감");
                 AnsCount++;
                 abm.ChangeAngle(angle);
-                if(AnsCount == 10)
+                if(AnsCount == 5)
                 {
                     startPos.transform.position = new Vector3(random.Next(100, 200), 8f, random.Next(100, 200));
                     AnsCount = 0;
