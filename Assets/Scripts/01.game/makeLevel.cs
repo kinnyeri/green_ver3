@@ -15,7 +15,7 @@ public class makeLevel : MonoBehaviour
 
     void Start()
     {
-        ga = new GeneticAlgorithm(populationSize, new System.Random(), tt.getRandomInt, Phi, elitism, tt, mutationRate); // i should change this into func<float>
+        ga = new GeneticAlgorithm(populationSize, new System.Random(), tt.getRandomInt, Phi, elitism, tt,ggm, mutationRate); // i should change this into func<float>
         Debug.Log("ga start");
     }
 
@@ -24,19 +24,23 @@ public class makeLevel : MonoBehaviour
     {
         if (ggm.finish)
         {
-            Debug.Log("new generation");
-            ga.NewGeneration();
-
-            if (ga.BestFitness >= 0.85f)
+            if (ga.currPopulation() >= populationSize)
             {
-                this.enabled = false;
-                Debug.Log("fitness ok!");
+                Debug.Log("new generation");
+                ga.NewGeneration();
+                if (ga.BestFitness >= 0.95f)
+                {
+                    this.enabled = false;
+                    Debug.Log("fitness ok!");
+                }
+                
             }
             else
             {
                 ggm.finish = false;
                 Debug.Log("green restart" + ggm.finish);
             }
+
         }
         
     }

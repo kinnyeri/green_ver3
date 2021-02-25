@@ -233,6 +233,7 @@ public class GeneticGreenMode : Progress
                 this.enabled = false;
                 tt.finish = false;
                 finish = true;
+                
                 //정답 부터 다시 찾기
             }
         }

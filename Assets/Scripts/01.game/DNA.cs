@@ -26,6 +26,12 @@ public class DNA
         }
     }
 
+    public void beginLife()
+    {
+        tt.startMakingGene();
+        Genes = tt.Genes;
+    }
+
     public double CalculateFitness(int index)
     {
         Fitness = fitnessFunction(index);

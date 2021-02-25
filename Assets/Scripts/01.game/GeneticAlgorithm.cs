@@ -17,11 +17,16 @@ public class GeneticAlgorithm
     private Func<float> getRandomGene;
     private Func<int, double> fitnessFunction;
 
+    private int populationSize;
+    GeneticGreenMode ggm;
+    
     testTerraiin tt;
 
     public GeneticAlgorithm(int populationSize, Random random, Func<float> getRandomGene, Func<int, double> fitnessFunction,
-        int elitism, testTerraiin tt, float mutationRate = 0.01f)
+        int elitism, testTerraiin tt,GeneticGreenMode ggm, float mutationRate = 0.01f)
     {
+        this.populationSize = populationSize;
+
         Generation = 1;
         Elitism = elitism;
         MutationRate = mutationRate;
@@ -31,18 +36,27 @@ public class GeneticAlgorithm
         this.getRandomGene = getRandomGene;
         this.fitnessFunction = fitnessFunction;
         this.tt = tt;
+        this.ggm = ggm;
         BestGenes = new float[tt.RowSize,tt.RowSize];
 
-        for (int i = 0; i < populationSize;i++)
+        for (int i = 0; i < populationSize;)
         {
             if (!tt.finish)
             {
-                
                 Population.Add(new DNA(tt.RowSize, random, getRandomGene, fitnessFunction, tt, shouldInitGenes: true));
+                i++;
+                tt.gaDebug(i + " pop size");
             }
-            tt.gaDebug(i + " pop size");
         }
         tt.gaDebug("ga finish");
+    }
+
+    public int currPopulation()
+    {
+        if (Population.Count < populationSize)
+            return Population.Count;
+        else
+            return newPopulation.Count;
     }
 
     public void NewGeneration(int numNewDNA = 0, bool crossoverNewDNA = false)
@@ -60,27 +74,33 @@ public class GeneticAlgorithm
             Population.Sort(CompareDNA);
         }
         newPopulation.Clear();
+        ggm.probList.Clear();
 
+        DNA child;
         for (int i = 0; i < Population.Count; i++)
         {
             if (i < Elitism && i < Population.Count)
             {
                 newPopulation.Add(Population[i]);
+                Population[i].beginLife();
             }
             else if (i < Population.Count || crossoverNewDNA)
             {
                 DNA parent1 = ChooseParent();
                 DNA parent2 = ChooseParent();
 
-                DNA child = parent1.Crossover(parent2);
+                child = parent1.Crossover(parent2);
 
                 child.Mutate(MutationRate);
 
                 newPopulation.Add(child);
+                child.beginLife();
             }
             else
             {
-                newPopulation.Add(new DNA(tt.RowSize, random, getRandomGene, fitnessFunction, tt, shouldInitGenes: true));
+                child = new DNA(tt.RowSize, random, getRandomGene, fitnessFunction, tt, shouldInitGenes: true);
+                newPopulation.Add(child);
+                child.beginLife();
             }
         }
 
